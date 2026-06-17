@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, DateTime, String, ForeignKey
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
 
 from app.database.base import Base
 from app.models.save import Save
+
 
 class Import(Base):
     __tablename__ = "import"
