@@ -1,0 +1,17 @@
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+build
+dist
+.git
+.github
+Dockerfile
+.dockerignore
+*.sqlite3
+*.log
+.env
