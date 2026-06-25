@@ -10,6 +10,7 @@ dependencies = [
     "pydantic (>=2.13.4,<3.0.0)",
     "sqlalchemy (>=2.0.51,<3.0.0)",
     "fastapi[standard] (>=0.137.1,<0.138.0)",
+    "psycopg2 (>=2.9.12,<3.0.0)",
 ]
 
 
