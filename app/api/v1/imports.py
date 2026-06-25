@@ -9,11 +9,6 @@ import_router = APIRouter()
 PostgreSQLSession = Annotated[Session, Depends(get_db)]
 
 
-@import_router.get("/")
-def some_test(db: PostgreSQLSession):
-    raise NotImplementedError
-
-
 @import_router.post("/")
 def upload_save(db: PostgreSQLSession):
     raise NotImplementedError
