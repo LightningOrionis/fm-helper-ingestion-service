@@ -1,9 +1,10 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
 
-from app.database.base import Base
+from app.models.base import Base, TimestampedMixin
 
 
-class Save(Base):
+class Save(Base, TimestampedMixin):
     __tablename__ = "save"
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String)

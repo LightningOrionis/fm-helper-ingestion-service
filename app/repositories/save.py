@@ -1,0 +1,2 @@
+class SaveRepository:
+    pass
