@@ -13,10 +13,16 @@ dependencies = [
     "psycopg2 (>=2.9.12,<3.0.0)",
 ]
 
+[tool.poetry]
+package-mode = false
+
 
 [dependency-groups]
 dev = [
-    "pre-commit (>=4.6.0,<5.0.0)"
+    "pre-commit (>=4.6.0,<5.0.0)",
+    "pytest (>=7.4.0,<8.0.0)",
+    "pytest-asyncio (>=0.21.0,<1.0.0)",
+    "httpx (>=0.24.0,<1.0.0)"
 ]
 
 [build-system]

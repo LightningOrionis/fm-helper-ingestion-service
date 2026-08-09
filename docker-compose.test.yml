@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  test-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: test_db
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d test_db"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENVIRONMENT: local
+    depends_on:
+      test-db:
+        condition: service_healthy
+    environment:
+      TEST_POSTGRES_URL: postgresql://testuser:testpassword@test-db:5432/test_db
+      POSTGRES_URL: postgresql://app:apppassword@test-db:5432/app_db
+    command: pytest tests/test_save.py -v
+    volumes:
+      - .:/app

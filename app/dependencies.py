@@ -1,8 +1,9 @@
-from app.database.postgresql import postgresql_session_maker
+from app.database.postgresql import get_session_maker
 
 
 def get_db():
-    session = postgresql_session_maker()
+    SessionLocal = get_session_maker()
+    session = SessionLocal()
     try:
         yield session
     finally:
