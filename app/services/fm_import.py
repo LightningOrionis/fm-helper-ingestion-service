@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 
+from app.enums.fm_import import ImportUploadStatus
 from app.exceptions.item_not_found import ItemNotFoundError
 from app.models.fm_import import Import
 from app.models.save import Save
@@ -22,7 +23,7 @@ class ImportService:
 
         params = model.model_dump()
         params["version"] = current_version
-
+        params["upload_status"] = ImportUploadStatus.STARTED
         return self._repository.create(db, params)
 
     def delete(self, db: Session, import_id: int) -> bool:
