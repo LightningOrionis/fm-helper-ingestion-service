@@ -6,7 +6,7 @@ class ImportType(str, Enum):
     SHORTLIST = "shortlist"
 
 
-class ImportUploadStatus(Enum):
+class ImportUploadStatus(str, Enum):
     STARTED = "started"
     IN_PROGRESS = "in_progress"
     FAILED = "failed"
