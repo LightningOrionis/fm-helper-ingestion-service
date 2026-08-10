@@ -29,7 +29,11 @@ class TestSaveAPI:
 
         assert response.status_code == 422  # Validation error
 
-    def test_get_save_success(self, client: TestClient, save_factory: SaveFactory) -> None:
+    def test_get_save_success(
+        self,
+        client: TestClient,
+        save_factory: SaveFactory,
+    ) -> None:
         create_payload = {"name": "Test Save"}
         save = save_factory(**create_payload)
 
@@ -52,7 +56,11 @@ class TestSaveAPI:
         assert response.status_code == 200
         assert response.json() == []
 
-    def test_list_saves_with_data(self, client: TestClient, save_factory: SaveFactory) -> None:
+    def test_list_saves_with_data(
+        self,
+        client: TestClient,
+        save_factory: SaveFactory,
+    ) -> None:
         names = ["Save 1", "Save 2", "Save 3"]
         created_saves = [save_factory(name) for name in names]
 
@@ -65,7 +73,11 @@ class TestSaveAPI:
         for save in created_saves:
             assert save.id in returned_ids
 
-    def test_list_saves_contains_all_fields(self, client: TestClient, save_factory: SaveFactory) -> None:
+    def test_list_saves_contains_all_fields(
+        self,
+        client: TestClient,
+        save_factory: SaveFactory,
+    ) -> None:
         payload = {"name": "Full Info Save"}
         save_factory(**payload)
 
