@@ -5,13 +5,14 @@ from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
 from app.schemas.request.fm_import import ImportCreateRequestModel
+from app.schemas.response.fm_import import ImportResponseModel
 from app.services.fm_import import ImportService
 
 import_router = APIRouter()
 PostgreSQLSession = Annotated[Session, Depends(get_db)]
 
 
-@import_router.post("/")
+@import_router.post("/", response_model=ImportResponseModel)
 def upload_import(
     db: PostgreSQLSession,
     import_data: ImportCreateRequestModel,
