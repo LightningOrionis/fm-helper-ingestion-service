@@ -4,5 +4,9 @@ from pydantic_settings import BaseSettings
 class PostgreSQLSettings(BaseSettings):
     POSTGRES_URL: str
 
+    class Config:
+        env_file = None
 
-postgresql_settings = PostgreSQLSettings()
+
+def get_postgresql_settings():
+    return PostgreSQLSettings()

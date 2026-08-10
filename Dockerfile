@@ -1,5 +1,7 @@
 FROM python:3.12
 
+ARG ENVIRONMENT=production
+
 ENV PYTHONUNBUFFERED=1
 ENV POETRY_HOME="/opt/poetry"
 ENV POETRY_VIRTUALENVS_CREATE=false
@@ -18,10 +20,13 @@ RUN apt-get update && \
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
 COPY pyproject.toml poetry.lock /app/
-RUN poetry install --no-root
+RUN if [ "$ENVIRONMENT" = "local" ]; then \
+        poetry install --no-root --with dev; \
+    else \
+        poetry install --no-root; \
+    fi
 
 COPY . /app
 
 CMD ["uvicorn", "app.main:app", "--reload", "--host", "0.0.0.0", "--port", "8000"]
 EXPOSE 8000
-
