@@ -24,6 +24,7 @@ class ImportService:
         params = model.model_dump()
         params["version"] = current_version
         params["upload_status"] = ImportUploadStatus.STARTED
+
         return self._repository.create(db, params)
 
     def delete(self, db: Session, import_id: int) -> bool:

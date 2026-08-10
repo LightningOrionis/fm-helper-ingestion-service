@@ -7,9 +7,10 @@ class TestSaveAPI:
 
     def test_create_save_success(self, client: TestClient) -> None:
         payload = {"name": "My Save"}
+        existence_fields = ["id", "created_at", "updated_at"]
+
         response = client.post("/save/", json=payload)
         data = response.json()
-        existence_fields = ["id", "created_at", "updated_at"]
 
         assert response.status_code == 201
         assert data["name"] == "My Save"

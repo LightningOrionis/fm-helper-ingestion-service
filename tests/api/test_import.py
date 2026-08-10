@@ -9,9 +9,10 @@ class TestImportAPI:
     def test_create_import_success(self, client: TestClient, save_factory: SaveFactory) -> None:
         save = save_factory(name="save1")
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save.id}
+        existence_fields = ["id", "upload_date", "import_type", "filename"]
+
         response = client.post("/import/", json=payload)
         data = response.json()
-        existence_fields = ["id", "upload_date", "import_type", "filename"]
 
         assert response.status_code == 201
         assert data["upload_status"] == ImportUploadStatus.STARTED
@@ -65,6 +66,7 @@ class TestImportAPI:
 
     def test_create_import_save_not_found(self, client: TestClient) -> None:
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": 123}
+
         response = client.post("/import/", json=payload)
 
         assert response.status_code == 404
