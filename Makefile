@@ -8,7 +8,3 @@ run:
 
 down:
 	docker-compose down
-
-
-
-
