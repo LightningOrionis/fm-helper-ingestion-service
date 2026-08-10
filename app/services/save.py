@@ -7,7 +7,7 @@ from app.schemas.request.save import SaveCreateRequestModel
 
 
 class SaveService:
-    def __init__(self):
+    def __init__(self) -> None:
         self._repository = SaveRepository()
 
     def create(

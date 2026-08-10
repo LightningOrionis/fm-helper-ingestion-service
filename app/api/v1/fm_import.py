@@ -16,13 +16,16 @@ PostgreSQLSession = Annotated[Session, Depends(get_db)]
 def upload_import(
     db: PostgreSQLSession,
     import_data: ImportCreateRequestModel,
-):
+) -> ImportResponseModel:
     # TODO: Implement file to local/S3 upload  # noqa
     return ImportService().create(db, import_data)
 
 
 @import_router.delete("/{import_id}")
-def delete_import(db: PostgreSQLSession, import_id: int):
+def delete_import(
+    db: PostgreSQLSession,
+    import_id: int,
+) -> Response:
     ImportService().delete(db, import_id)
 
     return Response(status_code=204)

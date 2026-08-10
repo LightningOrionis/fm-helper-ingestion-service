@@ -10,7 +10,7 @@ from app.services.save import SaveService
 
 
 class ImportService:
-    def __init__(self):
+    def __init__(self) -> None:
         self._repository = ImportRepository()
 
     def create(self, db: Session, model: ImportCreateRequestModel) -> Import:
