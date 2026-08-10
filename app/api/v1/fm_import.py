@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
 from app.dependencies import get_db
@@ -12,7 +12,7 @@ import_router = APIRouter()
 PostgreSQLSession = Annotated[Session, Depends(get_db)]
 
 
-@import_router.post("/", response_model=ImportResponseModel)
+@import_router.post("/", status_code=201, response_model=ImportResponseModel)
 def upload_import(
     db: PostgreSQLSession,
     import_data: ImportCreateRequestModel,
@@ -25,4 +25,4 @@ def upload_import(
 def delete_import(db: PostgreSQLSession, import_id: int):
     ImportService().delete(db, import_id)
 
-    return {"success": "ok"}
+    return Response(status_code=204)

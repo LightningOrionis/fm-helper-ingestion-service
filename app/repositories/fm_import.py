@@ -1,4 +1,4 @@
-from sqlalchemy import func
+from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
 from app.models.fm_import import Import
@@ -19,5 +19,14 @@ class ImportRepository:
         result = db.query(Import).filter(import_id == Import.id).delete()
         return result != 0
 
-    def get_latest_version_by_save(self, db: Session, save_id: int) -> bool:
-        return db.query(func.max(Import.version)).filter(save_id == Import.save_id).scalar()
+    def get_latest_version_by_save(self, db: Session, save_id: int, import_type: str) -> bool:
+        return (
+            db.query(func.max(Import.version))
+            .filter(
+                and_(
+                    save_id == Import.save_id,
+                    import_type == Import.import_type,
+                )
+            )
+            .scalar()
+        )

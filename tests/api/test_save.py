@@ -1,6 +1,11 @@
-class TestSaveEndpoints:
+from starlette.testclient import TestClient
 
-    def test_create_save_success(self, client):
+from tests.protocols import SaveFactory
+
+
+class TestSaveAPI:
+
+    def test_create_save_success(self, client: TestClient) -> None:
         payload = {"name": "My Save"}
         response = client.post("/save/", json=payload)
         data = response.json()
@@ -11,50 +16,44 @@ class TestSaveEndpoints:
         for field in existence_fields:
             assert field in data
 
-    def test_create_save_with_empty_name(self, client):
+    def test_create_save_with_empty_name(self, client: TestClient) -> None:
         payload = {"name": ""}
         response = client.post("/save/", json=payload)
 
         assert response.status_code == 422  # Validation error
 
-    def test_create_save_missing_name(self, client):
-        payload = {}
+    def test_create_save_missing_name(self, client: TestClient) -> None:
+        payload: dict = {}
         response = client.post("/save/", json=payload)
 
         assert response.status_code == 422  # Validation error
 
-    def test_get_save_success(self, client):
+    def test_get_save_success(self, client: TestClient, save_factory: SaveFactory) -> None:
         create_payload = {"name": "Test Save"}
-        create_response = client.post("/save/", json=create_payload)
-        save_id = create_response.json()["id"]
+        save = save_factory(**create_payload)
 
-        get_response = client.get(f"/save/{save_id}")
+        get_response = client.get(f"/save/{save.id}")
         data = get_response.json()
 
         assert get_response.status_code == 200
-        assert data["id"] == save_id
+        assert data["id"] == save.id
         assert data["name"] == "Test Save"
 
-    def test_get_save_not_found(self, client):
+    def test_get_save_not_found(self, client: TestClient) -> None:
         response = client.get("/save/999")
 
         assert response.status_code == 404
-        assert "Save not found" in response.json()["detail"]
+        assert response.json()["detail"] == "Save not found"
 
-    def test_list_saves_empty(self, client):
+    def test_list_saves_empty(self, client: TestClient):
         response = client.get("/save/")
 
         assert response.status_code == 200
         assert response.json() == []
 
-    def test_list_saves_with_data(self, client):
+    def test_list_saves_with_data(self, client: TestClient, save_factory: SaveFactory) -> None:
         names = ["Save 1", "Save 2", "Save 3"]
-        created_ids = []
-
-        for name in names:
-            payload = {"name": name}
-            response = client.post("/save/", json=payload)
-            created_ids.append(response.json()["id"])
+        created_saves = [save_factory(name) for name in names]
 
         list_response = client.get("/save/")
         data = list_response.json()
@@ -62,12 +61,12 @@ class TestSaveEndpoints:
 
         assert list_response.status_code == 200
         assert len(data) == 3
-        for save_id in created_ids:
-            assert save_id in returned_ids
+        for save in created_saves:
+            assert save.id in returned_ids
 
-    def test_list_saves_contains_all_fields(self, client):
+    def test_list_saves_contains_all_fields(self, client: TestClient, save_factory: SaveFactory) -> None:
         payload = {"name": "Full Info Save"}
-        client.post("/save/", json=payload)
+        save_factory(**payload)
 
         response = client.get("/save/")
         data = response.json()

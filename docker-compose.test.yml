@@ -26,6 +26,6 @@ services:
         condition: service_healthy
     environment:
       POSTGRES_URL: ${TEST_POSTGRES_URL:-postgresql://testuser:testpassword@test-db:5432/test_db}
-    command: pytest tests/test_save.py -v
+    command: pytest tests/ -v
     volumes:
       - .:/app
