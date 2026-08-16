@@ -1,5 +1,5 @@
-from sqlalchemy import ForeignKey, Integer, String, Enum
-from sqlalchemy.orm import Mapped, relationship, mapped_column
+from sqlalchemy import Enum, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums.fm_import import ImportType, ImportUploadStatus
 from app.models.base import Base, TimestampedMixin

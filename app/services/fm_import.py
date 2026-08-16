@@ -19,7 +19,9 @@ class ImportService:
         if not save:
             raise ItemNotFoundError(Save)
 
-        latest_version = self._import_repository.get_latest_version_by_save(db, payload.save_id, payload.import_type) or 0
+        latest_version = (
+            self._import_repository.get_latest_version_by_save(db, payload.save_id, payload.import_type) or 0
+        )
         current_version = latest_version + 1
 
         params = payload.model_dump()

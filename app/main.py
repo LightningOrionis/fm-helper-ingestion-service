@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, APIRouter
+from fastapi import APIRouter, FastAPI, Request
 from starlette.responses import JSONResponse
 
 from app.api.v1 import (
@@ -7,7 +7,6 @@ from app.api.v1 import (
     save_router,
 )
 from app.exceptions.item_not_found import ItemNotFoundError
-
 
 api_v1_router = APIRouter(prefix="/api/v1")
 
