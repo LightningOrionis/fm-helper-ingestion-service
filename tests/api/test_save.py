@@ -48,7 +48,6 @@ class TestSaveAPI:
         self,
         client: TestClient,
         save_factory: SaveFactory,
-        name: str,
         result: str,
     ) -> None:
         create_payload = {"name": "save"}

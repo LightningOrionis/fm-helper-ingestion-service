@@ -15,7 +15,6 @@ from app.models.fm_import import Import
 from app.models.save import Save
 from tests.protocols import ImportFactory, SaveFactory
 
-
 test_db_url = os.environ.get("TEST_POSTGRES_URL")
 if not test_db_url:
     temp_db = tempfile.NamedTemporaryFile(delete=False, suffix=".db")

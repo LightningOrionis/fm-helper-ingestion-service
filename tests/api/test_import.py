@@ -111,7 +111,6 @@ class TestImportAPI:
         client: TestClient,
         save_factory: SaveFactory,
     ) -> None:
-        save_1 = save_factory(name="save1")
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": -1}
 
         response = client.post("/api/v1/import/", json=payload)
