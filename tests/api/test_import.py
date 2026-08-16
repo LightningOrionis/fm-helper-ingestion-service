@@ -13,9 +13,9 @@ class TestImportAPI:
     ) -> None:
         save = save_factory(name="save1")
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save.id}
-        existence_fields = ["id", "upload_date", "import_type", "filename"]
+        existence_fields = ["id", "import_type", "filename"]
 
-        response = client.post("/import/", json=payload)
+        response = client.post("/api/v1/import/", json=payload)
         data = response.json()
 
         assert response.status_code == 201
@@ -35,7 +35,7 @@ class TestImportAPI:
         import_factory(import_type=ImportType.SQUAD, save_id=save.id, version=1)
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save.id}
 
-        response = client.post("/import/", json=payload)
+        response = client.post("/api/v1/import/", json=payload)
         data = response.json()
 
         assert response.status_code == 201
@@ -52,7 +52,7 @@ class TestImportAPI:
         import_factory(import_type=ImportType.SHORTLIST, save_id=save.id, version=1)
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save.id}
 
-        response = client.post("/import/", json=payload)
+        response = client.post("/api/v1/import/", json=payload)
         data = response.json()
 
         assert response.status_code == 201
@@ -70,20 +70,65 @@ class TestImportAPI:
         import_factory(import_type=ImportType.SQUAD, save_id=save_1.id, version=1)
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save_2.id}
 
-        response = client.post("/import/", json=payload)
+        response = client.post("/api/v1/import/", json=payload)
         data = response.json()
 
         assert response.status_code == 201
         assert data["version"] == 1
         assert data["save_id"] == save_2.id
 
-    def test_create_import_save_not_found(self, client: TestClient) -> None:
+    def test_create_import_version_with_gap(
+        self,
+        client: TestClient,
+        save_factory: SaveFactory,
+        import_factory: ImportFactory,
+    ) -> None:
+        save_1 = save_factory(name="save1")
+        import_factory(import_type=ImportType.SQUAD, save_id=save_1.id, version=1)
+        import_factory(import_type=ImportType.SQUAD, save_id=save_1.id, version=3)
+        payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save_1.id}
+
+        response = client.post("/api/v1/import/", json=payload)
+        data = response.json()
+
+        assert response.status_code == 201
+        assert data["version"] == 4
+        assert data["save_id"] == save_1.id
+
+    def test_create_import_save_not_found(
+        self,
+        client: TestClient,
+    ) -> None:
         payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": 123}
 
-        response = client.post("/import/", json=payload)
+        response = client.post("/api/v1/import/", json=payload)
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Save not found"
+
+    def test_create_import_save_id_lt_0(
+        self,
+        client: TestClient,
+        save_factory: SaveFactory,
+    ) -> None:
+        save_1 = save_factory(name="save1")
+        payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": -1}
+
+        response = client.post("/api/v1/import/", json=payload)
+
+        assert response.status_code == 422
+
+    def test_create_import_empty_filename(
+        self,
+        client: TestClient,
+        save_factory: SaveFactory,
+    ) -> None:
+        save_1 = save_factory(name="save1")
+        payload = {"import_type": ImportType.SQUAD, "filename": "", "save_id": save_1.id}
+
+        response = client.post("/api/v1/import/", json=payload)
+
+        assert response.status_code == 422
 
     def test_delete_import_success(
         self,
@@ -94,12 +139,15 @@ class TestImportAPI:
         save = save_factory(name="save1")
         import_ = import_factory(save_id=save.id)
 
-        response = client.delete(f"/import/{import_.id}/")
+        response = client.delete(f"/api/v1/import/{import_.id}/")
 
         assert response.status_code == 204
 
-    def test_delete_import_failure(self, client: TestClient) -> None:
-        response = client.delete("/import/999/")
+    def test_delete_import_failure(
+        self,
+        client: TestClient,
+    ) -> None:
+        response = client.delete("/api/v1/import/999/")
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Import not found"

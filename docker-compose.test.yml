@@ -3,6 +3,8 @@ version: '3.8'
 services:
   test-db:
     image: postgres:15-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${TEST_POSTGRES_USER:-testuser}
       POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD:-testpassword}
@@ -24,6 +26,8 @@ services:
     depends_on:
       test-db:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       POSTGRES_URL: ${TEST_POSTGRES_URL:-postgresql://testuser:testpassword@test-db:5432/test_db}
     command: pytest tests/ -v

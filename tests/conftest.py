@@ -1,4 +1,3 @@
-import datetime
 import os
 import tempfile
 from typing import Generator
@@ -8,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from app.database import postgresql
+from app.dependencies.database import get_db
 from app.enums.fm_import import ImportType, ImportUploadStatus
 from app.main import app
 from app.models.base import Base
@@ -16,31 +15,17 @@ from app.models.fm_import import Import
 from app.models.save import Save
 from tests.protocols import ImportFactory, SaveFactory
 
+
 test_db_url = os.environ.get("TEST_POSTGRES_URL")
 if not test_db_url:
     temp_db = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
     test_db_url = f"sqlite:///{temp_db.name}"
 
-os.environ["POSTGRES_URL"] = test_db_url
 
-test_engine = None
-
-
-@pytest.fixture(scope="function")
+@pytest.fixture
 def test_db() -> Generator[Engine, None, None]:
-    global test_engine
-
     test_engine = create_engine(test_db_url, echo=False)
     Base.metadata.create_all(test_engine)
-
-    def override_get_engine():
-        return test_engine
-
-    def override_get_session_maker():
-        return sessionmaker(bind=test_engine, autoflush=False, autocommit=False)
-
-    postgresql.get_engine = override_get_engine
-    postgresql.get_session_maker = override_get_session_maker
 
     yield test_engine
 
@@ -49,19 +34,38 @@ def test_db() -> Generator[Engine, None, None]:
 
 
 @pytest.fixture
-def db_session(test_db: Engine) -> Generator[Session, None, None]:
-    SessionLocal = sessionmaker(
+def testing_session_local(test_db: Engine) -> sessionmaker[Session]:
+    return sessionmaker(
         bind=test_db,
         autoflush=False,
         autocommit=False,
     )
 
-    with SessionLocal() as session:
+
+@pytest.fixture
+def db_session(testing_session_local: sessionmaker[Session]) -> Generator[Session, None, None]:
+    with testing_session_local() as session:
         yield session
 
 
 @pytest.fixture
-def client(test_db: Engine) -> TestClient:
+def override_db(testing_session_local: sessionmaker[Session]) -> Generator[None, None, None]:
+    def override_get_db() -> Generator[Session, None, None]:
+        with testing_session_local() as session:
+            yield session
+
+    app.dependency_overrides[get_db] = override_get_db
+
+    yield
+
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def client(
+    test_db: Engine,
+    override_db: None,
+) -> TestClient:
     return TestClient(app)
 
 
@@ -81,7 +85,6 @@ def save_factory(db_session: Session) -> SaveFactory:
 def import_factory(db_session: Session) -> ImportFactory:
     def create_import(
         version: int = 0,
-        upload_date: datetime.datetime | None = None,
         upload_status: ImportUploadStatus = ImportUploadStatus.STARTED,
         import_type: ImportType = ImportType.SQUAD,
         filename: str = "path/to/file",
@@ -92,7 +95,6 @@ def import_factory(db_session: Session) -> ImportFactory:
 
         import_ = Import(
             version=version,
-            upload_date=datetime.datetime.now() if not upload_date else upload_date,
             upload_status=upload_status,
             import_type=import_type,
             filename=filename,

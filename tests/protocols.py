@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Protocol
 
 from app.enums.fm_import import ImportType, ImportUploadStatus
@@ -10,7 +9,6 @@ class ImportFactory(Protocol):
     def __call__(  # noqa
         self,
         version: int = 0,
-        upload_date: datetime | None = None,
         upload_status: ImportUploadStatus = ImportUploadStatus.STARTED,
         import_type: ImportType = ImportType.SQUAD,
         filename: str = "path/to/file",

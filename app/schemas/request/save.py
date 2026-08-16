@@ -1,5 +1,10 @@
-from pydantic import BaseModel, Field
+from typing import Annotated
+
+from pydantic import BaseModel, StringConstraints
 
 
 class SaveCreateRequestModel(BaseModel):
-    name: str = Field(min_length=1)
+    name: Annotated[
+        str,
+        StringConstraints(strip_whitespace=True, min_length=1),
+    ]

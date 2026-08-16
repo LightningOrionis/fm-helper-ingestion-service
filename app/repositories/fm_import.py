@@ -1,13 +1,16 @@
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
+from app.enums.fm_import import ImportType
 from app.models.fm_import import Import
 
 
 class ImportRepository:
-    def create(self, db: Session, import_params: dict) -> Import:
-        import_params["upload_date"] = func.now()
-
+    def create(
+        self,
+        db: Session,
+        import_params: dict,
+    ) -> Import:
         import_ = Import(**import_params)
         db.add(import_)
         db.commit()
@@ -15,17 +18,27 @@ class ImportRepository:
 
         return import_
 
-    def delete(self, db: Session, import_id: int) -> bool:
-        result = db.query(Import).filter(import_id == Import.id).delete()
+    def delete(
+        self,
+        db: Session,
+        import_id: int,
+    ) -> bool:
+        result = db.query(Import).filter(Import.id == import_id).delete()
+        db.commit()
         return result != 0
 
-    def get_latest_version_by_save(self, db: Session, save_id: int, import_type: str) -> bool:
+    def get_latest_version_by_save(
+        self,
+        db: Session,
+        save_id: int,
+        import_type: ImportType,
+    ) -> int | None:
         return (
             db.query(func.max(Import.version))
             .filter(
                 and_(
-                    save_id == Import.save_id,
-                    import_type == Import.import_type,
+                    Import.save_id == save_id,
+                    Import.import_type == import_type,
                 )
             )
             .scalar()

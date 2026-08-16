@@ -1,3 +1,4 @@
+import pytest
 from starlette.testclient import TestClient
 
 from tests.protocols import SaveFactory
@@ -5,11 +6,14 @@ from tests.protocols import SaveFactory
 
 class TestSaveAPI:
 
-    def test_create_save_success(self, client: TestClient) -> None:
+    def test_create_save_success(
+        self,
+        client: TestClient,
+    ) -> None:
         payload = {"name": "My Save"}
         existence_fields = ["id", "created_at", "updated_at"]
 
-        response = client.post("/save/", json=payload)
+        response = client.post("/api/v1/save/", json=payload)
         data = response.json()
 
         assert response.status_code == 201
@@ -17,15 +21,26 @@ class TestSaveAPI:
         for field in existence_fields:
             assert field in data
 
-    def test_create_save_with_empty_name(self, client: TestClient) -> None:
-        payload = {"name": ""}
-        response = client.post("/save/", json=payload)
+    @pytest.mark.parametrize(
+        "name",
+        ["", " "],
+    )
+    def test_create_save_with_empty_name(
+        self,
+        client: TestClient,
+        name: str,
+    ) -> None:
+        payload = {"name": name}
+        response = client.post("/api/v1/save/", json=payload)
 
         assert response.status_code == 422  # Validation error
 
-    def test_create_save_missing_name(self, client: TestClient) -> None:
+    def test_create_save_missing_name(
+        self,
+        client: TestClient,
+    ) -> None:
         payload: dict = {}
-        response = client.post("/save/", json=payload)
+        response = client.post("/api/v1/save/", json=payload)
 
         assert response.status_code == 422  # Validation error
 
@@ -33,25 +48,33 @@ class TestSaveAPI:
         self,
         client: TestClient,
         save_factory: SaveFactory,
+        name: str,
+        result: str,
     ) -> None:
-        create_payload = {"name": "Test Save"}
+        create_payload = {"name": "save"}
         save = save_factory(**create_payload)
 
-        get_response = client.get(f"/save/{save.id}")
+        get_response = client.get(f"/api/v1/save/{save.id}")
         data = get_response.json()
 
         assert get_response.status_code == 200
         assert data["id"] == save.id
-        assert data["name"] == "Test Save"
+        assert data["name"] == result
 
-    def test_get_save_not_found(self, client: TestClient) -> None:
-        response = client.get("/save/999")
+    def test_get_save_not_found(
+        self,
+        client: TestClient,
+    ) -> None:
+        response = client.get("/api/v1/save/999")
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Save not found"
 
-    def test_list_saves_empty(self, client: TestClient):
-        response = client.get("/save/")
+    def test_list_saves_empty(
+        self,
+        client: TestClient,
+    ) -> None:
+        response = client.get("/api/v1/save/")
 
         assert response.status_code == 200
         assert response.json() == []
@@ -64,7 +87,7 @@ class TestSaveAPI:
         names = ["Save 1", "Save 2", "Save 3"]
         created_saves = [save_factory(name) for name in names]
 
-        list_response = client.get("/save/")
+        list_response = client.get("/api/v1/save/")
         data = list_response.json()
         returned_ids = [item["id"] for item in data]
 
@@ -81,7 +104,7 @@ class TestSaveAPI:
         payload = {"name": "Full Info Save"}
         save_factory(**payload)
 
-        response = client.get("/save/")
+        response = client.get("/api/v1/save/")
         data = response.json()
 
         assert len(data) > 0

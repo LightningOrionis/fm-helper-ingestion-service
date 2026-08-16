@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, APIRouter
 from starlette.responses import JSONResponse
 
 from app.api.v1 import (
@@ -8,17 +8,22 @@ from app.api.v1 import (
 )
 from app.exceptions.item_not_found import ItemNotFoundError
 
+
+api_v1_router = APIRouter(prefix="/api/v1")
+
+api_v1_router.include_router(healthcheck_router, prefix="/healthcheck")
+api_v1_router.include_router(import_router, prefix="/import")
+api_v1_router.include_router(save_router, prefix="/save")
+
 app = FastAPI()
-app.include_router(healthcheck_router, prefix="/healthcheck")
-app.include_router(import_router, prefix="/import")
-app.include_router(save_router, prefix="/save")
+app.include_router(api_v1_router)
 
 
 @app.exception_handler(ItemNotFoundError)
 async def item_not_found_handler(
     request: Request,
     exc: ItemNotFoundError,
-):
+) -> JSONResponse:
     return JSONResponse(
         status_code=404,
         content={
