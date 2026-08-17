@@ -1,4 +1,3 @@
-import os
 from typing import Generator
 
 import pytest
@@ -6,6 +5,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from app.config import settings
 from app.dependencies.database import get_db
 from app.enums.fm_import import ImportType, ImportUploadStatus
 from app.main import app
@@ -14,7 +14,7 @@ from app.models.fm_import import Import
 from app.models.save import Save
 from tests.protocols import ImportFactory, SaveFactory
 
-test_db_url = os.environ.get("TEST_POSTGRES_URL")
+test_db_url = settings.TEST_POSTGRES.URL
 
 
 @pytest.fixture(scope="session")

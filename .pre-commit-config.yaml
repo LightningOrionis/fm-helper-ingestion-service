@@ -1,4 +1,4 @@
-exclude: '(^|/)(__pycache__/|venv/)'
+exclude: '(^|/)(__pycache__/|venv/|alembic/)'
 
 repos:
 -   repo: https://github.com/psf/black
@@ -7,7 +7,8 @@ repos:
     -   id: black
         name: black
         entry: black
-        args: ["--line-length", "120", "--target-version", "py312"]
+        args: ["--line-length", "120", "--target-version", "py313"]
+
 -   repo: https://github.com/PyCQA/isort
     rev: 6.1.0
     hooks:
@@ -15,11 +16,13 @@ repos:
         name: isort
         entry: isort
         args: ["--profile", "black"]
+
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v2.1.0
     hooks:
     -   id: mypy
         name: mypy
+
 -   repo: https://github.com/PyCQA/flake8
     rev: 7.3.0
     hooks:
