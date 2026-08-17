@@ -25,13 +25,13 @@ jobs:
 
       - name: Format check
         run: |
-          black --check app/ tests/ --line-length 120 --target-version py312
-          isort --check-only app/ tests/ --profile black
+          poetry run black --check app/ tests/ --line-length 120 --target-version py312
+          poetry run isort --check-only app/ tests/ --profile black
 
       - name: Lint
         run: |
-          flake8 app/ tests/
-          mypy app/ tests/
+          poetry run flake8 app/ tests/
+          poetry run mypy app/ tests/
 
       - name: Test
         run: |
