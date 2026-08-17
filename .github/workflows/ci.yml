@@ -37,4 +37,4 @@ jobs:
 
       - name: Test
         run: |
-          docker compose --env-file .env.ci -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests --remove-orphans
+          docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests --remove-orphans
