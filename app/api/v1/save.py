@@ -21,7 +21,8 @@ def create_save(
     save_service: SaveServiceDependency,
     payload: SaveCreateRequestModel,
 ) -> SaveResponseModel:
-    return save_service.create(db, payload)
+    save = save_service.create(db, payload)
+    return SaveResponseModel.model_validate(save)
 
 
 @save_router.get("/{save_id}", response_model=SaveResponseModel)
@@ -30,7 +31,8 @@ def get_save(
     save_service: SaveServiceDependency,
     save_id: int,
 ) -> SaveResponseModel:
-    return save_service.get(db, save_id)
+    save = save_service.get(db, save_id)
+    return SaveResponseModel.model_validate(save)
 
 
 @save_router.get("/", response_model=list[SaveResponseModel])
@@ -38,4 +40,5 @@ def list_saves(
     db: DatabaseSession,
     save_service: SaveServiceDependency,
 ) -> list[SaveResponseModel]:
-    return save_service.list(db)
+    saves = save_service.list(db)
+    return [SaveResponseModel.model_validate(save) for save in saves]
