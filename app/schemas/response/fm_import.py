@@ -1,15 +1,13 @@
-from datetime import datetime
-
-from pydantic import BaseModel
-
 from app.enums.fm_import import ImportType, ImportUploadStatus
+from app.schemas.response.base import TimeStampedModel
 
 
-class ImportResponseModel(BaseModel):
+class ImportResponseModel(TimeStampedModel):
     id: int
     version: int
-    upload_date: datetime
     upload_status: ImportUploadStatus
     import_type: ImportType
     filename: str
     save_id: int
+
+    model_config = {"from_attributes": True}

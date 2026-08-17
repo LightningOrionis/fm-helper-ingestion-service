@@ -5,30 +5,33 @@ from app.exceptions.item_not_found import ItemNotFoundError
 from app.models.fm_import import Import
 from app.models.save import Save
 from app.repositories.fm_import import ImportRepository
+from app.repositories.save import SaveRepository
 from app.schemas.request.fm_import import ImportCreateRequestModel
-from app.services.save import SaveService
 
 
 class ImportService:
     def __init__(self) -> None:
-        self._repository = ImportRepository()
+        self._import_repository = ImportRepository()
+        self._save_repository = SaveRepository()
 
-    def create(self, db: Session, model: ImportCreateRequestModel) -> Import:
-        save = SaveService().get(db, save_id=model.save_id)
+    def create(self, db: Session, payload: ImportCreateRequestModel) -> Import:
+        save = self._save_repository.get_by_id(db, payload.save_id)
         if not save:
             raise ItemNotFoundError(Save)
 
-        lastest_version = self._repository.get_latest_version_by_save(db, model.save_id, model.import_type) or 0
-        current_version = lastest_version + 1
+        latest_version = (
+            self._import_repository.get_latest_version_by_save(db, payload.save_id, payload.import_type) or 0
+        )
+        current_version = latest_version + 1
 
-        params = model.model_dump()
+        params = payload.model_dump()
         params["version"] = current_version
         params["upload_status"] = ImportUploadStatus.STARTED
 
-        return self._repository.create(db, params)
+        return self._import_repository.create(db, params)
 
     def delete(self, db: Session, import_id: int) -> bool:
-        result = self._repository.delete(db, import_id)
+        result = self._import_repository.delete(db, import_id)
         # TODO: run reversionize  # noqa
 
         if not result:

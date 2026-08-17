@@ -13,9 +13,9 @@ class SaveService:
     def create(
         self,
         db: Session,
-        model: SaveCreateRequestModel,
+        payload: SaveCreateRequestModel,
     ) -> Save:
-        return self._repository.create(db, model.name)
+        return self._repository.create(db, payload.name)
 
     def get(self, db: Session, save_id: int) -> Save:
         result = self._repository.get_by_id(db, save_id)
