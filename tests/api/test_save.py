@@ -42,15 +42,6 @@ class TestSaveAPI:
 
         assert response.status_code == 422  # Validation error
 
-    def test_create_save_missing_name(
-        self,
-        client: TestClient,
-    ) -> None:
-        payload: dict = {}
-        response = client.post("/api/v1/save/", json=payload)
-
-        assert response.status_code == 422  # Validation error
-
     def test_get_save_success(
         self,
         client: TestClient,

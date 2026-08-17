@@ -1,5 +1,4 @@
 import os
-import tempfile
 from typing import Generator
 
 import pytest
@@ -16,9 +15,6 @@ from app.models.save import Save
 from tests.protocols import ImportFactory, SaveFactory
 
 test_db_url = os.environ.get("TEST_POSTGRES_URL")
-if not test_db_url:
-    temp_db = tempfile.NamedTemporaryFile(delete=False, suffix=".db")
-    test_db_url = f"sqlite:///{temp_db.name}"
 
 
 @pytest.fixture(scope="session")

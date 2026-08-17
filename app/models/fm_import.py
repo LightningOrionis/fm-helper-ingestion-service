@@ -23,4 +23,11 @@ class Import(Base, TimestampedMixin):
         back_populates="imports",
     )
 
-    __table_args__ = (UniqueConstraint("save_id", "version", "import_type", name="uq_import_save_version_import_type"),)
+    __table_args__ = (
+        UniqueConstraint(
+            "save_id",
+            "version",
+            "import_type",
+            name="uq_import_save_version_import_type",
+        ),
+    )
