@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: pipx install poetry==2.4.1
+
+      - name: Install dependencies
+        run: poetry install --no-root --with dev
+
+      - name: Format check
+        run: |
+          black --check app/ tests/ --line-length 120 --target-version py312
+          isort --check-only app/ tests/ --profile black
+
+      - name: Lint
+        run: |
+          flake8 app/ tests/
+          mypy app/ tests/
+
+      - name: Test
+        run: |
+          docker compose --env-file .env.ci -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from tests --remove-orphans
