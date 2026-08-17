@@ -1,4 +1,4 @@
-from sqlalchemy import Enum, ForeignKey, Integer, String
+from sqlalchemy import Enum, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.enums.fm_import import ImportType, ImportUploadStatus
@@ -22,3 +22,5 @@ class Import(Base, TimestampedMixin):
         "Save",
         back_populates="imports",
     )
+
+    __table_args__ = (UniqueConstraint("save_id", "version", "import_type", name="uq_import_save_version_import_type"),)

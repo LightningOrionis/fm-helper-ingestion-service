@@ -6,31 +6,38 @@ from tests.protocols import SaveFactory
 
 class TestSaveAPI:
 
+    @pytest.mark.parametrize(
+        "payload, expected_name",
+        [
+            ({"name": "save"}, "save"),
+            ({"name": " save "}, "save"),
+        ],
+    )
     def test_create_save_success(
         self,
         client: TestClient,
+        payload: dict[str, str],
+        expected_name: str,
     ) -> None:
-        payload = {"name": "My Save"}
         existence_fields = ["id", "created_at", "updated_at"]
 
         response = client.post("/api/v1/save/", json=payload)
         data = response.json()
 
         assert response.status_code == 201
-        assert data["name"] == "My Save"
+        assert data["name"] == expected_name
         for field in existence_fields:
             assert field in data
 
     @pytest.mark.parametrize(
-        "name",
-        ["", " "],
+        "payload",
+        [{}, {"name": ""}, {"name": "  "}],
     )
-    def test_create_save_with_empty_name(
+    def test_create_save_failed(
         self,
         client: TestClient,
-        name: str,
+        payload: dict[str, str],
     ) -> None:
-        payload = {"name": name}
         response = client.post("/api/v1/save/", json=payload)
 
         assert response.status_code == 422  # Validation error
@@ -48,7 +55,6 @@ class TestSaveAPI:
         self,
         client: TestClient,
         save_factory: SaveFactory,
-        result: str,
     ) -> None:
         create_payload = {"name": "save"}
         save = save_factory(**create_payload)
@@ -58,7 +64,7 @@ class TestSaveAPI:
 
         assert get_response.status_code == 200
         assert data["id"] == save.id
-        assert data["name"] == result
+        assert data["name"] == create_payload["name"]
 
     def test_get_save_not_found(
         self,
@@ -88,7 +94,7 @@ class TestSaveAPI:
 
         list_response = client.get("/api/v1/save/")
         data = list_response.json()
-        returned_ids = [item["id"] for item in data]
+        returned_ids = {item["id"] for item in data}
 
         assert list_response.status_code == 200
         assert len(data) == 3
@@ -109,6 +115,6 @@ class TestSaveAPI:
         assert len(data) > 0
 
         first_save = data[0]
-        existence_fields = ["id", "name", "created_at", "updated_at"]
+        existence_fields = {"id", "name", "created_at", "updated_at"}
         for field in existence_fields:
             assert field in first_save

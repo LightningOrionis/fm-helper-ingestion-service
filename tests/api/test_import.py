@@ -1,3 +1,4 @@
+import pytest
 from starlette.testclient import TestClient
 
 from app.enums.fm_import import ImportType, ImportUploadStatus
@@ -25,39 +26,30 @@ class TestImportAPI:
         for field in existence_fields:
             assert field in data
 
+    @pytest.mark.parametrize(
+        "import_type, expected_version",
+        [
+            (ImportType.SQUAD, 2),
+            (ImportType.SHORTLIST, 1),
+        ],
+    )
     def test_create_import_new_version(
         self,
         client: TestClient,
         save_factory: SaveFactory,
         import_factory: ImportFactory,
+        import_type: ImportType,
+        expected_version: int,
     ) -> None:
         save = save_factory(name="save1")
         import_factory(import_type=ImportType.SQUAD, save_id=save.id, version=1)
-        payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save.id}
+        payload = {"import_type": import_type, "filename": "path/to/file", "save_id": save.id}
 
         response = client.post("/api/v1/import/", json=payload)
         data = response.json()
 
         assert response.status_code == 201
-        assert data["version"] == 2
-        assert data["save_id"] == save.id
-
-    def test_create_import_version_for_different_import_type(
-        self,
-        client: TestClient,
-        save_factory: SaveFactory,
-        import_factory: ImportFactory,
-    ) -> None:
-        save = save_factory(name="save1")
-        import_factory(import_type=ImportType.SHORTLIST, save_id=save.id, version=1)
-        payload = {"import_type": ImportType.SQUAD, "filename": "path/to/file", "save_id": save.id}
-
-        response = client.post("/api/v1/import/", json=payload)
-        data = response.json()
-
-        assert response.status_code == 201
-        assert data["version"] == 1
-        assert data["save_id"] == save.id
+        assert data["version"] == expected_version
 
     def test_create_import_version_for_different_save(
         self,

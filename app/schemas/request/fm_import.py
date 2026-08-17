@@ -1,14 +1,15 @@
 from typing import Annotated
 
-from pydantic import BaseModel, Field, StringConstraints
+from pydantic import BaseModel, BeforeValidator, Field
 
 from app.enums.fm_import import ImportType
+from app.utils.validators import non_empty_string_validator
 
 
 class ImportCreateRequestModel(BaseModel):
     import_type: ImportType
     filename: Annotated[
         str,
-        StringConstraints(strip_whitespace=True, min_length=1),
+        BeforeValidator(non_empty_string_validator),
     ]
     save_id: int = Field(gt=0)

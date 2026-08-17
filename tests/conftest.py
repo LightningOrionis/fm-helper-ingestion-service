@@ -21,7 +21,7 @@ if not test_db_url:
     test_db_url = f"sqlite:///{temp_db.name}"
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def test_db() -> Generator[Engine, None, None]:
     test_engine = create_engine(test_db_url, echo=False)
     Base.metadata.create_all(test_engine)
@@ -32,7 +32,7 @@ def test_db() -> Generator[Engine, None, None]:
     test_engine.dispose()
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def testing_session_local(test_db: Engine) -> sessionmaker[Session]:
     return sessionmaker(
         bind=test_db,
@@ -45,6 +45,13 @@ def testing_session_local(test_db: Engine) -> sessionmaker[Session]:
 def db_session(testing_session_local: sessionmaker[Session]) -> Generator[Session, None, None]:
     with testing_session_local() as session:
         yield session
+
+        session.rollback()
+
+        for table in reversed(Base.metadata.sorted_tables):
+            session.execute(table.delete())
+
+        session.commit()
 
 
 @pytest.fixture
