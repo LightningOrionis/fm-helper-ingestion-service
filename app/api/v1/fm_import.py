@@ -22,7 +22,8 @@ def upload_import(
     payload: ImportCreateRequestModel,
 ) -> ImportResponseModel:
     # TODO: Implement file to local/S3 upload  # noqa
-    return import_service.create(db, payload)
+    import_ = import_service.create(db, payload)
+    return ImportResponseModel.model_validate(import_)
 
 
 @import_router.delete("/{import_id}", status_code=204)

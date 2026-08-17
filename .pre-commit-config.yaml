@@ -1,4 +1,4 @@
-exclude: '(^|/)(__pycache__/|venv/|alembic/)'
+exclude: '(^|/)(__pycache__/|.venv/|alembic/)'
 
 repos:
   - repo: local
@@ -25,9 +25,10 @@ repos:
 
       - id: mypy
         name: mypy
-        entry: poetry run mypy
+        entry: poetry run mypy app/ tests/
         language: system
         types: [python]
+        pass_filenames: false
 
       - id: flake8
         name: flake8

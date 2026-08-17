@@ -22,8 +22,8 @@ class TestPostgreSQLSettings(BaseSettings):
 
 
 class Settings(BaseSettings):
-    POSTGRES: PostgreSQLSettings = PostgreSQLSettings()
-    TEST_POSTGRES: TestPostgreSQLSettings = TestPostgreSQLSettings()
+    POSTGRES: PostgreSQLSettings = PostgreSQLSettings()  # type: ignore
+    TEST_POSTGRES: TestPostgreSQLSettings = TestPostgreSQLSettings()  # type: ignore
 
 
 settings = Settings()
