@@ -12,7 +12,7 @@ from app.main import app
 from app.models.base import Base
 from app.models.fm_import import Import
 from app.models.save import Save
-from tests.protocols import ImportFactory, SaveFactory
+from tests.protocols import FileFactory, ImportFactory, SaveFactory
 
 test_db_url = settings.TEST_POSTGRES.URL
 
@@ -89,7 +89,7 @@ def import_factory(db_session: Session) -> ImportFactory:
         version: int = 0,
         upload_status: ImportUploadStatus = ImportUploadStatus.STARTED,
         import_type: ImportType = ImportType.SQUAD,
-        filename: str = "path/to/file",
+        path_to_file: str = "path/to/file",
         save_id: int | None = None,
     ) -> Import:
         if save_id is None:
@@ -99,7 +99,7 @@ def import_factory(db_session: Session) -> ImportFactory:
             version=version,
             upload_status=upload_status,
             import_type=import_type,
-            filename=filename,
+            path_to_file=path_to_file,
             save_id=save_id,
         )
         db_session.add(import_)
@@ -108,3 +108,14 @@ def import_factory(db_session: Session) -> ImportFactory:
         return import_
 
     return create_import
+
+
+@pytest.fixture
+def file_factory() -> FileFactory:
+    def create_file(
+        filename: str,
+        filetype: str,
+    ) -> dict[str, tuple[str, bytes, str]]:
+        return {"file": (filename, b"File content", filetype)}
+
+    return create_file

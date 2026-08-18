@@ -7,7 +7,7 @@ class ImportResponseModel(TimeStampedModel):
     version: int
     upload_status: ImportUploadStatus
     import_type: ImportType
-    filename: str
+    path_to_file: str
     save_id: int
 
     model_config = {"from_attributes": True}
