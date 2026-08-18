@@ -3,7 +3,7 @@ from typing import BinaryIO
 
 from app.config import settings
 
-from .base_storage import BaseStorage
+from .base import BaseStorage
 
 
 class LocalStorage(BaseStorage):

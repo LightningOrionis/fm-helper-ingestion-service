@@ -1,7 +1,7 @@
 from app.config import settings
 from app.enums.storage import StorageType
-from app.storages.base_storage import BaseStorage
-from app.storages.local_storage import LocalStorage
+from app.storages.base import BaseStorage
+from app.storages.local import LocalStorage
 from app.utils.validators import FileValidator
 
 

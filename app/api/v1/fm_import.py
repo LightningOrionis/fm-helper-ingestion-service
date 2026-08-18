@@ -10,7 +10,7 @@ from app.enums.fm_import import ImportType
 from app.schemas.request.fm_import import ImportCreateRequestModel
 from app.schemas.response.fm_import import ImportResponseModel
 from app.services.fm_import import ImportService
-from app.storages.base_storage import BaseStorage
+from app.storages.base import BaseStorage
 from app.utils.validators import FileValidator
 
 import_router = APIRouter()

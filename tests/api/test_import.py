@@ -2,6 +2,8 @@ from pathlib import Path
 from uuid import UUID
 
 import pytest
+from pytest_mock import MockerFixture
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.testclient import TestClient
 
 from app.config import settings
@@ -32,9 +34,12 @@ class TestImportAPI:
         assert data["save_id"] == save.id
         assert str(path.parent) == settings.STORAGE.FILE_PATH
         assert UUID(path.stem).version == 4
+        assert path.exists()
 
         for field in existence_fields:
             assert field in data
+
+        path.unlink()
 
     @pytest.mark.parametrize(
         "filename, filetype, status_code",
@@ -61,6 +66,10 @@ class TestImportAPI:
         response = client.post("/api/v1/import/", data=payload, files=file)
 
         assert response.status_code == status_code
+
+        if response.status_code == 201:
+            path = Path(response.json()["path_to_file"])
+            path.unlink(missing_ok=True)
 
     @pytest.mark.parametrize(
         "import_type, expected_version",
@@ -89,6 +98,9 @@ class TestImportAPI:
         assert response.status_code == 201
         assert data["version"] == expected_version
 
+        path = Path(response.json()["path_to_file"])
+        path.unlink()
+
     def test_create_import_version_for_different_save(
         self,
         client: TestClient,
@@ -108,6 +120,9 @@ class TestImportAPI:
         assert response.status_code == 201
         assert data["version"] == 1
         assert data["save_id"] == save_2.id
+
+        path = Path(response.json()["path_to_file"])
+        path.unlink()
 
     def test_create_import_version_with_gap(
         self,
@@ -129,6 +144,9 @@ class TestImportAPI:
         assert data["version"] == 4
         assert data["save_id"] == save_1.id
 
+        path = Path(response.json()["path_to_file"])
+        path.unlink()
+
     def test_create_import_save_not_found(
         self,
         client: TestClient,
@@ -138,9 +156,39 @@ class TestImportAPI:
         payload = {"import_type": ImportType.SQUAD.value, "save_id": "123"}
 
         response = client.post("/api/v1/import/", data=payload, files=file)
+        possible_path_to_file = Path(settings.STORAGE.FILE_PATH) / "file.xls"
 
         assert response.status_code == 404
         assert response.json()["detail"] == "Save not found"
+        assert not possible_path_to_file.exists()
+
+    @pytest.mark.parametrize(
+        "mocked_method, exception",
+        [
+            ("app.storages.local.LocalStorage.upload_file", OSError),
+            ("app.repositories.fm_import.ImportRepository.create", SQLAlchemyError),
+        ],
+    )
+    def test_create_import_os_error(
+        self,
+        client: TestClient,
+        save_factory: SaveFactory,
+        file_factory: FileFactory,
+        mocker: MockerFixture,
+        mocked_method: str,
+        exception: type,
+    ) -> None:
+        error_mock = mocker.patch(mocked_method, side_effect=exception())
+
+        save = save_factory(name="save1")
+        file = file_factory("file.xls", "application/vnd.ms-excel")
+        payload = {"import_type": ImportType.SQUAD.value, "save_id": str(save.id)}
+
+        response = client.post("/api/v1/import/", data=payload, files=file)
+
+        assert response.status_code == 503
+        assert response.json()["detail"] == "Failed to create import"
+        error_mock.asser_called_with()
 
     def test_delete_import_success(
         self,

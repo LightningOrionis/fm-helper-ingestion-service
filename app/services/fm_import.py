@@ -2,16 +2,18 @@ import uuid
 from pathlib import Path
 from typing import BinaryIO
 
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from app.enums.fm_import import ImportUploadStatus
+from app.exceptions.import_creation import ImportCreationError
 from app.exceptions.item_not_found import ItemNotFoundError
 from app.models.fm_import import Import
 from app.models.save import Save
 from app.repositories.fm_import import ImportRepository
 from app.repositories.save import SaveRepository
 from app.schemas.request.fm_import import ImportCreateRequestModel
-from app.storages.base_storage import BaseStorage
+from app.storages.base import BaseStorage
 
 
 class ImportService:
@@ -45,10 +47,13 @@ class ImportService:
             path_to_file = storage.upload_file(file, filename)
             params["path_to_file"] = path_to_file
             return self._import_repository.create(db, params)
-        except Exception:
+        except SQLAlchemyError:
             storage.delete_file(filename)
             db.rollback()
-            raise
+            raise ImportCreationError()
+        except OSError:
+            storage.delete_file(filename)
+            raise ImportCreationError()
 
     def delete(self, db: Session, import_id: int) -> bool:
         result = self._import_repository.delete(db, import_id)
