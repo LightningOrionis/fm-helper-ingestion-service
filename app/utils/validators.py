@@ -2,6 +2,7 @@ from pathlib import Path
 
 from fastapi import UploadFile
 
+from app.config import settings
 from app.enums.file import IncorrectFileReason
 from app.exceptions.incorrect_file import IncorrectFileError
 
@@ -17,7 +18,7 @@ def non_empty_string_validator(s: str) -> str:
 
 class FileValidator:
     ALLOWED_EXTENSIONS = {".xls", ".xlsx", ".csv"}
-    MAX_FILE_SIZE = 4 * 1024 * 1024  # 4 MB
+    MAX_FILE_SIZE = settings.STORAGE.ALLOWED_FILE_SIZE * 1024 * 1024
 
     def _validate_size(self, file: UploadFile) -> None:
         file.file.seek(0, 2)

@@ -32,7 +32,6 @@ def upload_import(
     file: UploadFile = File(...),
 ) -> ImportResponseModel:
     filename = file_validator.validate(file)
-
     payload = ImportCreateRequestModel(
         save_id=save_id,
         import_type=import_type,

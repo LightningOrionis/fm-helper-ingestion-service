@@ -24,6 +24,7 @@ class TestPostgreSQLSettings(BaseSettings):
 class StorageSettings(BaseSettings):
     LOCATION: str
     FILE_PATH: str
+    ALLOWED_FILE_SIZE: int
 
     model_config = SettingsConfigDict(
         env_file=".env",

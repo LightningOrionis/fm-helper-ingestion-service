@@ -1,7 +1,8 @@
+from app.config import settings
 from app.enums.file import IncorrectFileReason
 
 REASONING = {
-    IncorrectFileReason.SIZE: "File size is too large.",
+    IncorrectFileReason.SIZE: f"File size is too large. Allowed size is {settings.STORAGE.ALLOWED_FILE_SIZE} MB.",
     IncorrectFileReason.EXTENSION: "File extensions supported: csv, xls, xlsx.",
 }
 
