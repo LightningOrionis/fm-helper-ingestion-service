@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.dependencies.database import get_db
-from app.dependencies.services import get_save_service
+from app.dependencies.service import get_save_service
 from app.schemas.request.save import SaveCreateRequestModel
 from app.schemas.response.save import SaveResponseModel
 from app.services.save import SaveService

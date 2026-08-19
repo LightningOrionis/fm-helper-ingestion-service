@@ -6,6 +6,8 @@ from app.api.v1 import (
     import_router,
     save_router,
 )
+from app.exceptions.import_creation import ImportCreationError
+from app.exceptions.incorrect_file import IncorrectFileError
 from app.exceptions.item_not_found import ItemNotFoundError
 
 api_v1_router = APIRouter(prefix="/api/v1")
@@ -25,6 +27,32 @@ async def item_not_found_handler(
 ) -> JSONResponse:
     return JSONResponse(
         status_code=404,
+        content={
+            "detail": str(exc),
+        },
+    )
+
+
+@app.exception_handler(IncorrectFileError)
+async def incorrect_file_error_handler(
+    request: Request,
+    exc: IncorrectFileError,
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": str(exc),
+        },
+    )
+
+
+@app.exception_handler(ImportCreationError)
+async def import_error_handler(
+    request: Request,
+    exc: ImportCreationError,
+) -> JSONResponse:
+    return JSONResponse(
+        status_code=503,
         content={
             "detail": str(exc),
         },

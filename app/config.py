@@ -21,9 +21,22 @@ class TestPostgreSQLSettings(BaseSettings):
     )
 
 
+class StorageSettings(BaseSettings):
+    LOCATION: str
+    FILE_PATH: str
+    ALLOWED_FILE_SIZE: int
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="STORAGE_",
+        extra="ignore",
+    )
+
+
 class Settings(BaseSettings):
     POSTGRES: PostgreSQLSettings = PostgreSQLSettings()  # type: ignore
     TEST_POSTGRES: TestPostgreSQLSettings = TestPostgreSQLSettings()  # type: ignore
+    STORAGE: StorageSettings = StorageSettings()  # type: ignore
 
 
 settings = Settings()

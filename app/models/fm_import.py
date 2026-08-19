@@ -12,7 +12,7 @@ class Import(Base, TimestampedMixin):
     version: Mapped[int] = mapped_column(Integer)
     upload_status: Mapped[ImportUploadStatus] = mapped_column(Enum(ImportUploadStatus))
     import_type: Mapped[ImportType] = mapped_column(Enum(ImportType))
-    filename: Mapped[str] = mapped_column(String)
+    path_to_file: Mapped[str] = mapped_column(String)
     save_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("save.id"),
