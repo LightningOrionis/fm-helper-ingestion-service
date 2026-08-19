@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import APIRouter, FastAPI, Request
 from starlette.responses import JSONResponse
 
@@ -6,9 +8,30 @@ from app.api.v1 import (
     import_router,
     save_router,
 )
+from app.config import settings
 from app.exceptions.import_creation import ImportCreationError
 from app.exceptions.incorrect_file import IncorrectFileError
 from app.exceptions.item_not_found import ItemNotFoundError
+from app.kafka.producer import KafkaProducer
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    producer = KafkaProducer(
+        bootstrap_servers=settings.KAFKA.BOOTSTRAP_SERVERS,
+        client_id=settings.KAFKA.CLIENT_ID,
+        acks=settings.KAFKA.ACKS,
+        request_timeout_ms=settings.KAFKA.REQUEST_TIMEOUT_MS,
+        retry_backoff_ms=settings.KAFKA.RETRY_BACKOFF_MS,
+    )
+
+    app.state.kafka_producer = producer
+
+    try:
+        yield
+    finally:
+        producer.stop()
+
 
 api_v1_router = APIRouter(prefix="/api/v1")
 
@@ -16,7 +39,7 @@ api_v1_router.include_router(healthcheck_router, prefix="/healthcheck")
 api_v1_router.include_router(import_router, prefix="/import")
 api_v1_router.include_router(save_router, prefix="/save")
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.include_router(api_v1_router)
 
 

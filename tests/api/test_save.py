@@ -40,7 +40,7 @@ class TestSaveAPI:
     ) -> None:
         response = client.post("/api/v1/save/", json=payload)
 
-        assert response.status_code == 422  # Validation error
+        assert response.status_code == 422
 
     def test_get_save_success(
         self,

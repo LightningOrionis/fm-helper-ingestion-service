@@ -16,6 +16,26 @@ services:
       timeout: 5s
       retries: 5
 
+  kafka:
+    image: apache/kafka:4.3.0
+    container_name: fm26-kafka
+    ports:
+      - "9092:9092"
+    env_file:
+      - .env
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   app:
     build:
         context: .
@@ -25,6 +45,8 @@ services:
     depends_on:
       db:
           condition: service_healthy
+      kafka:
+        condition: service_healthy
     env_file:
       - .env
     ports:
@@ -40,3 +62,10 @@ volumes:
       type: none
       o: bind
       device: ${POSTGRES_DATA_PATH}
+
+  kafka_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${KAFKA_DATA_PATH}
