@@ -20,7 +20,7 @@ KafkaProducerDependency = Annotated[KafkaProducer, Depends(get_kafka_producer)]
 @healthcheck_router.get("/", response_model=HealthcheckResponse)
 def healthcheck(
     db: DatabaseSession,
-    kafka_producer: KafkaProducer,
+    kafka_producer: KafkaProducerDependency,
     healthcheck_service: HealthcheckServiceDependency,
 ) -> HealthcheckResponse:
     return healthcheck_service.healthcheck(db, kafka_producer)

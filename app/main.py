@@ -26,13 +26,12 @@ async def lifespan(app: FastAPI):
 
 
 api_v1_router = APIRouter(prefix="/api/v1")
-
-api_v1_router.include_router(healthcheck_router, prefix="/healthcheck")
 api_v1_router.include_router(import_router, prefix="/import")
 api_v1_router.include_router(save_router, prefix="/save")
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(api_v1_router)
+app.include_router(healthcheck_router, prefix="/healthcheck")
 
 
 @app.exception_handler(ItemNotFoundError)
