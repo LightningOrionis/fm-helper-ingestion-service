@@ -54,3 +54,6 @@ class KafkaProducer:
 
     def stop(self) -> None:
         self._producer.flush(timeout=settings.KAFKA.FLUSH_TIMEOUT)
+
+    def list_topics(self) -> None:
+        self._producer.list_topics(timeout=settings.KAFKA.REQUEST_TIMEOUT_MS // 1000)
