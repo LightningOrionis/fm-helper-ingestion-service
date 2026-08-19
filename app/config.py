@@ -33,10 +33,26 @@ class StorageSettings(BaseSettings):
     )
 
 
+class KafkaSettings(BaseSettings):
+    BOOTSTRAP_SERVERS: str
+    CLIENT_ID: str
+    ACKS: str
+    REQUEST_TIMEOUT_MS: int
+    RETRY_BACKOFF_MS: int
+    FLUSH_TIMEOUT: int
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_prefix="KAFKA_",
+        extra="ignore",
+    )
+
+
 class Settings(BaseSettings):
     POSTGRES: PostgreSQLSettings = PostgreSQLSettings()  # type: ignore
     TEST_POSTGRES: TestPostgreSQLSettings = TestPostgreSQLSettings()  # type: ignore
     STORAGE: StorageSettings = StorageSettings()  # type: ignore
+    KAFKA: KafkaSettings = KafkaSettings()  # type: ignore
 
 
 settings = Settings()

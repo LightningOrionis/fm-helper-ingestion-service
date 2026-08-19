@@ -57,7 +57,7 @@ class ImportService:
 
     def delete(self, db: Session, import_id: int) -> bool:
         result = self._import_repository.delete(db, import_id)
-        # TODO: run reversionize  # noqa
+        # TODO: run reversionize
 
         if not result:
             raise ItemNotFoundError(Import)

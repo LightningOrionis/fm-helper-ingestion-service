@@ -1,0 +1,2 @@
+class KafkaPublishError(Exception):
+    pass
