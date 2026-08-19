@@ -30,12 +30,9 @@ class TestHealthCheckAPI:
         mocker: MockerFixture,
         mocked_object: str,
         side_effect: type,
-        response_pair: tuple[
-            bool,
-            bool,
-        ],
+        response_pair: tuple[bool, bool],
     ) -> None:
-        mocker.patch(mocked_object, side_effect=side_effect())
+        error_mock = mocker.patch(mocked_object, side_effect=side_effect())
 
         response = client.get("/healthcheck")
         data = response.json()
@@ -44,3 +41,5 @@ class TestHealthCheckAPI:
 
         assert response.status_code == 200
         assert (is_kafka_healthy, is_postgres_healthy) == response_pair
+
+        error_mock.assert_called_once()
