@@ -15,6 +15,26 @@ services:
       timeout: 5s
       retries: 5
 
+  test-kafka:
+    image: apache/kafka:4.3.0
+    container_name: fm26-kafka
+    logging:
+      driver: "none"
+    ports:
+      - "9092:9092"
+    env_file:
+      - .env.test
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 > /dev/null 2>&1"
+        ]
+      interval: 2s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
   tests:
     build:
       context: .
@@ -23,6 +43,8 @@ services:
         ENVIRONMENT: local
     depends_on:
       test-db:
+        condition: service_healthy
+      test-kafka:
         condition: service_healthy
     env_file:
       - .env.test

@@ -2,4 +2,5 @@ from pydantic import BaseModel
 
 
 class HealthcheckResponse(BaseModel):
-    healthcheck: str
+    is_postgres_healthy: bool
+    is_kafka_healthy: bool

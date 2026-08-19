@@ -67,8 +67,9 @@ def override_db(testing_session_local: sessionmaker[Session]) -> Generator[None,
 def client(
     test_db: Engine,
     override_db: None,
-) -> TestClient:
-    return TestClient(app)
+) -> Generator[TestClient, None, None]:
+    with TestClient(app) as client:
+        yield client
 
 
 @pytest.fixture
