@@ -8,7 +8,6 @@ from app.api.v1 import (
     import_router,
     save_router,
 )
-from app.config import settings
 from app.exceptions.import_creation import ImportCreationError
 from app.exceptions.incorrect_file import IncorrectFileError
 from app.exceptions.item_not_found import ItemNotFoundError
@@ -17,14 +16,7 @@ from app.kafka.producer import KafkaProducer
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    producer = KafkaProducer(
-        bootstrap_servers=settings.KAFKA.BOOTSTRAP_SERVERS,
-        client_id=settings.KAFKA.CLIENT_ID,
-        acks=settings.KAFKA.ACKS,
-        request_timeout_ms=settings.KAFKA.REQUEST_TIMEOUT_MS,
-        retry_backoff_ms=settings.KAFKA.RETRY_BACKOFF_MS,
-    )
-
+    producer = KafkaProducer()
     app.state.kafka_producer = producer
 
     try:

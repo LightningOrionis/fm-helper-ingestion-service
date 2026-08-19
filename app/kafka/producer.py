@@ -1,25 +1,19 @@
 from confluent_kafka import KafkaError, Message, Producer
 from pydantic import BaseModel
 
+from app.config import settings
 from app.exceptions.kafka_publish import KafkaPublishError
 
 
 class KafkaProducer:
-    def __init__(
-        self,
-        bootstrap_servers: str,
-        client_id: str,
-        acks: str = "all",
-        request_timeout_ms: int = 30_000,
-        retry_backoff_ms: int = 100,
-    ) -> None:
+    def __init__(self) -> None:
         self._producer = Producer(
             {
-                "bootstrap.servers": bootstrap_servers,
-                "client.id": client_id,
-                "acks": acks,
-                "request.timeout.ms": request_timeout_ms,
-                "retry.backoff.ms": retry_backoff_ms,
+                "bootstrap.servers": settings.KAFKA.BOOTSTRAP_SERVERS,
+                "client.id": settings.KAFKA.CLIENT_ID,
+                "acks": settings.KAFKA.ACKS,
+                "request.timeout.ms": settings.KAFKA.REQUEST_TIMEOUT_MS,
+                "retry.backoff.ms": settings.KAFKA.RETRY_BACKOFF_MS,
             }
         )
 
