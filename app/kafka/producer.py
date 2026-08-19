@@ -44,8 +44,13 @@ class KafkaProducer:
 
         self._producer.flush()
 
+        remaining = self._producer.flush()
+
         if delivery_error:
             raise KafkaPublishError(delivery_error[0])
 
+        if remaining:
+            raise KafkaPublishError("Kafka message was not delivered")
+
     def stop(self) -> None:
-        self._producer.flush()
+        self._producer.flush(timeout=settings.KAFKA.FLUSH_TIMEOUT)

@@ -39,6 +39,7 @@ class KafkaSettings(BaseSettings):
     ACKS: str
     REQUEST_TIMEOUT_MS: int
     RETRY_BACKOFF_MS: int
+    FLUSH_TIMEOUT: int
 
     model_config = SettingsConfigDict(
         env_file=".env",
